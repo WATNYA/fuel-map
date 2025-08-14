@@ -3,97 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>خريطة محطات الوقود مع أوامر ذكية + Clustering + بحث صوتي</title>
+  <title>خريطة محطات الوقود مع أوامر ذكية + بحث صوتي</title>
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f4f4f4;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    header {
-      background: #007BFF;
-      color: #fff;
-      padding: 1rem;
-      text-align: center;
-      font-size: 1.5rem;
-      flex-shrink: 0;
-    }
-    #container {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-    }
-    #sidebar {
-      width: 260px;
-      background: #fff;
-      border-left: 1px solid #ddd;
-      overflow-y: auto;
-      padding: 0.5rem;
-    }
-    #sidebar h2 { font-size: 1.2rem; margin-bottom: 0.5rem; }
-    #sidebar ul { list-style: none; padding: 0; margin: 0; }
-    #sidebar li {
-      padding: 0.5rem; cursor: pointer; border-bottom: 1px solid #eee;
-    }
-    #sidebar li:hover { background: #f0f0f0; }
-    #map { flex: 1 1 auto; }
-    #infoBar {
-      background: #007BFF; color: #fff; padding: 0.5rem;
-      text-align: center; flex-shrink: 0;
-    }
-    #assistant {
-      position: fixed; bottom: 10px; left: 10px; width: 320px; max-width: 90%;
-      background: #fff; border: 1px solid #ccc; border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    #assistant h3 {
-      background: #007BFF; color: #fff; padding: 0.5rem; margin: 0;
-      border-top-left-radius: 8px; border-top-right-radius: 8px;
-    }
-    #assistant #messages {
-      height: 160px; overflow-y: auto; padding: 0.5rem;
-      border-bottom: 1px solid #ddd; font-size: 0.9rem;
-    }
-    #assistant #input {
-      display: flex; padding: 0.5rem; gap: 0.5rem; align-items: center;
-    }
-    #assistant input {
-      flex: 1; padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px;
-    }
-    #assistant button {
-      padding: 0.4rem 0.6rem; background: #007BFF; color: #fff; border: none;
-      border-radius: 4px; cursor: pointer;
-    }
-    .mic-btn {
-      width: 40px; height: 40px; border-radius: 50%;
-      display: inline-flex; align-items: center; justify-content: center;
-      background: #e9f2ff; color: #007BFF; border: 1px solid #bcd8ff;
-      cursor: pointer; font-size: 18px;
-    }
-    .mic-btn.listening {
-      background: #ffe9ec; color: #d1002f; border-color: #ffc0cb;
-      animation: pulse 1s infinite;
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(209,0,47,0.4); }
-      70% { box-shadow: 0 0 0 12px rgba(209,0,47,0); }
-      100% { box-shadow: 0 0 0 0 rgba(209,0,47,0); }
-    }
-    .clickable-station { color: darkgreen; cursor: pointer; text-decoration: underline; }
-    @media (max-width: 768px) {
-      #container { flex-direction: column; }
-      #sidebar {
-        width: 100%; max-height: 220px; border-left: none; border-top: 1px solid #ddd;
-      }
-      #assistant {
-        left: 50%; transform: translateX(-50%); bottom: 10px; width: 95%; max-width: 360px;
-      }
+    body{font-family:sans-serif;margin:0;padding:0;background:#f4f4f4;display:flex;flex-direction:column;height:100vh}
+    header{background:#007BFF;color:#fff;padding:1rem;text-align:center;font-size:1.5rem;flex-shrink:0}
+    #container{display:flex;flex:1;overflow:hidden}
+    #sidebar{width:250px;background:#fff;border-left:1px solid #ddd;overflow-y:auto;padding:0.5rem}
+    #sidebar h2{font-size:1.2rem;margin-bottom:0.5rem}
+    #sidebar ul{list-style:none;padding:0;margin:0}
+    #sidebar li{padding:0.5rem;cursor:pointer;border-bottom:1px solid #eee}
+    #sidebar li:hover{background:#f0f0f0}
+    #map{flex:1 1 auto}
+    #infoBar{background:#007BFF;color:#fff;padding:0.5rem;text-align:center;flex-shrink:0}
+
+    #assistant{position:fixed;bottom:10px;left:10px;width:320px;max-width:92%;background:#fff;border:1px solid #ccc;border-radius:8px;box-shadow:0 4px 8px rgba(0,0,0,0.1)}
+    #assistant h3{background:#007BFF;color:#fff;padding:0.5rem;margin:0;border-top-left-radius:8px;border-top-right-radius:8px}
+    #assistant #messages{height:160px;overflow-y:auto;padding:0.5rem;border-bottom:1px solid #ddd;font-size:0.9rem}
+    #assistant #input{display:flex;padding:0.5rem;gap:0.5rem;align-items:center}
+    #assistant input{flex:1;padding:0.4rem;border:1px solid #ccc;border-radius:4px}
+    #assistant button{padding:0.4rem 0.6rem;background:#007BFF;color:#fff;border:none;border-radius:4px;cursor:pointer}
+    #micBtn{background:#eee;color:#333;border:1px solid #ccc}
+    #micBtn.listening{background:#ffebee;border-color:#f44336;color:#b71c1c}
+
+    .clickable-station{color:darkgreen;cursor:pointer;text-decoration:underline}
+
+    @media (max-width: 768px){
+      #container{flex-direction:column}
+      #sidebar{width:100%;max-height:200px;border-left:none;border-top:1px solid #ddd}
+      #assistant{left:50%;transform:translateX(-50%);bottom:10px;width:95%;max-width:360px}
     }
   </style>
+  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
 </head>
 <body>
 
@@ -113,21 +53,18 @@
     <h3>مساعد المحطات</h3>
     <div id="messages"></div>
     <div id="input">
-      <input type="text" id="userInput" placeholder="اكتب اسم المحطة أو أمر مثل: أقرب محطة">
-      <button id="micBtn" class="mic-btn" title="بحث صوتي">🎤</button>
+      <input type="text" id="userInput" placeholder="اكتب أو انطق: 'أقرب محطة' أو اسم المحطة...">
+      <button id="micBtn" title="بحث صوتي 🎤">🎤</button>
       <button id="sendBtn">إرسال</button>
     </div>
   </div>
 
-  <!-- MarkerClusterer -->
-  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
-
   <script>
-    // ================== البيانات ==================
+    // ======== بيانات المحطات ========
     const stations = [
-      // TODO: الصق جميع محطاتك هنا (نفس المصفوفة الكبيرة التي أرسلتها)
-      // أمثلة قصيرة فقط:
-       { name: 'رئاسة الشركة', lat: 30.075775, lon: 31.31986388888889 },
+      // TODO: ألصق مصفوفة المحطات هنا كما هي من كودك الأصلي (جميع العناصر {name, lat, lon})
+      // مثال صغير للتجربة السريعة (احذف المثالين عند لصق قائمتك):
+      { name: 'رئاسة الشركة', lat: 30.075775, lon: 31.31986388888889 },
   { name: 'مستودع وطنية', lat: 30.10302222222222, lon: 31.81430833333333 },
   { name: 'جراج فرع النقل', lat: 30.101125, lon: 31.81966111111111 },
   { name: 'مركز الصيانة', lat: 30.07979166666666, lon: 31.38048611111111 },
@@ -435,310 +372,298 @@
   { name: 'شلاتين', lat: 23.11694444444445, lon: 35.53583333333333 }
     ];
 
-    // ================== متغيرات عامة ==================
-    let map, infoWindow;
-    let markers = [];
-    let nearestRequestCount = 0;
-
-    // ================== تهيئة الخريطة ==================
-    function initMap() {
-      map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 30.05, lng: 31.3 },
-        zoom: 10
-      });
+    // ======== خريطة جوجل + كلاستر ========
+    let map, infoWindow, markers = [];
+    function initMap(){
+      map = new google.maps.Map(document.getElementById("map"), {center:{lat:30.05,lng:31.3}, zoom:10});
       infoWindow = new google.maps.InfoWindow();
 
       stations.forEach(st => {
-        const marker = new google.maps.Marker({
-          position: { lat: st.lat, lng: st.lon },
-          map,
-          title: st.name
-        });
+        const marker = new google.maps.Marker({ position:{lat:st.lat, lng:st.lon}, title:st.name });
         marker.addListener("click", () => showStationInfo(st));
         markers.push(marker);
-
-        const li = document.createElement("li");
-        li.textContent = st.name;
-        li.onclick = () => { showStationInfo(st); };
-        document.getElementById("stationList").appendChild(li);
+        addToSidebar(st, marker);
       });
 
       new MarkerClusterer(map, markers, {
-        imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+        imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m"
       });
     }
 
-    function showStationInfo(station) {
-      map.setCenter({ lat: station.lat, lng: station.lon });
+    function showStationInfo(station){
+      map.setCenter({lat:station.lat, lng:station.lon});
       map.setZoom(15);
       infoWindow.setContent(`<strong>${station.name}</strong>`);
-      infoWindow.setPosition({ lat: station.lat, lng: station.lon });
+      infoWindow.setPosition({lat:station.lat, lng:station.lon});
       infoWindow.open(map);
       const mapsLink = `https://www.google.com/maps/search/?api=1&query=${station.lat},${station.lon}`;
-      document.getElementById("infoBar").innerHTML =
-        `المحطة: ${station.name} | <a href="${mapsLink}" target="_blank">افتح في Google Maps</a>`;
+      document.getElementById("infoBar").innerHTML = `المحطة: ${station.name} | <a href="${mapsLink}" target="_blank">افتح في Google Maps</a>`;
     }
 
-    function appendAssistantMessage(sender, html) {
-      const msg = document.createElement("div");
-      msg.innerHTML = `<strong>${sender}:</strong> ${html}`;
+    function addToSidebar(station, marker){
+      const li = document.createElement("li");
+      li.textContent = station.name;
+      li.onclick = () => { map.setCenter(marker.getPosition()); map.setZoom(15); showStationInfo(station); };
+      document.getElementById("stationList").appendChild(li);
+    }
+
+    // ======== رسائل المساعد ========
+    function appendAssistantMessage(sender, html){
       const box = document.getElementById("messages");
-      box.appendChild(msg);
+      const div = document.createElement("div");
+      div.innerHTML = `<strong>${sender}:</strong> ${html}`;
+      box.appendChild(div);
       box.scrollTop = box.scrollHeight;
     }
 
-    // ================== مسافات ومطابقة ==================
-    function getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat/2)**2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2)**2;
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c;
+    // ======== حساب المسافة + أقرب محطات ========
+    function haversine(lat1, lon1, lat2, lon2){
+      const R=6371, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
+      const a=Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+      return 2*R*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
-
-    function findNearestStations(userLat, userLon, limit = 5) {
-      return stations.map(st => ({ ...st, distance: getDistance(userLat, userLon, st.lat, st.lon) }))
-                     .sort((a, b) => a.distance - b.distance)
-                     .slice(0, limit);
+    function findNearestStations(userLat, userLon, limit=5){
+      return stations
+        .map(st => ({...st, distance: haversine(userLat, userLon, st.lat, st.lon)}))
+        .sort((a,b) => a.distance - b.distance)
+        .slice(0, limit);
     }
-
-    function showNearestStations() {
-      if (!navigator.geolocation) {
-        appendAssistantMessage("المساعد", "المتصفح لا يدعم تحديد الموقع الجغرافي.");
+    function showNearestStations(){
+      if(!navigator.geolocation){
+        appendAssistantMessage("المساعد", "المتصفح لا يدعم تحديد الموقع.");
         return;
       }
-
-      nearestRequestCount++;
-      if (nearestRequestCount > 4) {
-        appendAssistantMessage("المساعد", "تم عرض المحطات مسبقًا، جرّب أمرًا آخر لو سمحت.");
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(pos => {
-        const userLat = pos.coords.latitude;
-        const userLon = pos.coords.longitude;
+      navigator.geolocation.getCurrentPosition(pos=>{
+        const {latitude: userLat, longitude: userLon} = pos.coords;
         const nearest = findNearestStations(userLat, userLon, 5);
 
-        map.setCenter({ lat: userLat, lng: userLon });
+        map.setCenter({lat:userLat, lng:userLon});
         map.setZoom(13);
 
         new google.maps.Marker({
-          position: { lat: userLat, lng: userLon },
-          map,
-          title: "موقعك الحالي",
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 8, fillColor: "#00f", fillOpacity: 0.8,
-            strokeColor: "#fff", strokeWeight: 2
-          }
+          position:{lat:userLat, lng:userLon}, map,
+          title:"موقعك الحالي",
+          icon:{ path:google.maps.SymbolPath.CIRCLE, scale:8, fillColor:"#00f", fillOpacity:0.8, strokeColor:"#fff", strokeWeight:2 }
         });
 
         let msg = "أقرب المحطات إليك:<br>";
-        nearest.forEach(st => {
-          new google.maps.Marker({
-            position: { lat: st.lat, lng: st.lon },
-            map, title: st.name,
-            icon: { url: "http://maps.google.com/mapfiles/ms/icons/orange-dot.png" }
-          });
+        nearest.forEach(st=>{
           const link = `https://www.google.com/maps/search/?api=1&query=${st.lat},${st.lon}`;
-          msg += `<a href="${link}" target="_blank" class="clickable-station">${st.name}</a> (على بعد ${st.distance.toFixed(2)} كم)<br>`;
+          msg += `<a class="clickable-station" target="_blank" href="${link}">${st.name}</a> (على بعد ${st.distance.toFixed(2)} كم)<br>`;
         });
         appendAssistantMessage("المساعد", msg);
-      }, _ => {
-        appendAssistantMessage("المساعد", "تعذر الحصول على موقعك. تأكد من تفعيل GPS وإذن الموقع.");
+      }, _=>{
+        appendAssistantMessage("المساعد", "تعذر الحصول على موقعك. تأكد من تفعيل GPS.");
       });
     }
 
-    // ================== تطبيع عربي ذكي ==================
-    function normalizeName(text) {
-      if (!text) return "";
-      // تحويل الأرقام العربية للاتينية
-      const arabicDigits = "٠١٢٣٤٥٦٧٨٩";
-      const latinDigits  = "0123456789";
+    // ======== التطبيع الذكي للأسماء (همزات/تاء مربوطة/ال/أرقام… إلخ) ========
+    function normalizeName(text){
+      if(!text) return "";
+
+      // إلى حروف صغيرة
+      text = text.toLowerCase();
+
+      // أرقام عربية -> لاتينية
+      const arNums="٠١٢٣٤٥٦٧٨٩", ltNums="0123456789";
+      text = text.replace(/[٠-٩]/g, d => ltNums[arNums.indexOf(d)]);
 
       // إزالة التشكيل والتطويل
+      text = text.replace(/[\u0617-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g, ""); // تشكيل
+      text = text.replace(/\u0640/g, ""); // تطويل
+
+      // توحيد همزات وأحرف
       text = text
-        .replace(/[\u0617-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
-        .replace(/\u0640/g, ""); // ـ
+        .replace(/[آأإٱ]/g,"ا")
+        .replace(/ة/g,"ه")
+        .replace(/ى/g,"ي")
+        .replace(/ؤ/g,"و")
+        .replace(/ئ/g,"ي")
+        .replace(/ء/g,"")
+        .replace(/گ/g,"ك").replace(/پ/g,"ب").replace(/ژ/g,"ز").replace(/ڤ/g,"ف");
 
-      // توحيد أشكال الحروف والهمزات
-      text = text
-        .replace(/[آأإٱ]/g, "ا")
-        .replace(/ة/g, "ه")
-        .replace(/ى/g, "ي")
-        .replace(/ؤ/g, "و")
-        .replace(/ئ/g, "ي")
-        .replace(/ء/g, "")
-        .replace(/گ/g, "ك")
-        .replace(/پ/g, "ب")
-        .replace(/ژ/g, "ز")
-        .replace(/ڤ/g, "ف");
+      // حذف "ال/أل/الـ" بداية الكلمات
+      text = text.replace(/(^|\s)أ?ل/g, "$1");
 
-      // إزالة "ال" التعريف أينما ظهرت لتسهيل المطابقة
-      text = text.replace(/(^|\s)ال/g, "$1");
+      // توحيد المسافات وازالة غير الحرف/الرقم
+      text = text.replace(/[^\p{L}\p{N}\s]+/gu," ").replace(/\s+/g," ").trim();
 
-      // إزالة كلمات عامة
-      text = text
-        .replace(/\b(محطه|محطة|محطات)\b/gi, "")
-        .replace(/\b(شركة|الشركه|ألشركة|الشركة)\b/gi, "")
-        .replace(/\b(وطنية|الوطنيه|الوطنية)\b/gi, "");
+      // تحويل الأرقام المكتوبة/المنطوقة إلى أرقام
+      const numMap = {
+        // 1..10 بالعربي الفصيح/العامية/الإنجليزي المنطوق
+        "واحد":"1","١":"1","one":"1","ون":"1",
+        "اتنين":"2","اثنين":"2","٢":"2","two":"2","تو":"2","تين":"2",
+        "تلاته":"3","ثلاثه":"3","ثلاثة":"3","٣":"3","three":"3","ثري":"3","تلات":"3",
+        "اربعه":"4","أربعة":"4","٤":"4","four":"4","فور":"4",
+        "خمسه":"5","خمسة":"5","٥":"5","five":"5","فايف":"5",
+        "سته":"6","ستة":"6","٦":"6","six":"6","سكس":"6",
+        "سبعه":"7","سبعة":"7","٧":"7","seven":"7","سفن":"7",
+        "تمانيه":"8","ثمانيه":"8","ثمانية":"8","٨":"8","eight":"8","ايت":"8",
+        "تسعه":"9","تسعة":"9","٩":"9","nine":"9","ناين":"9",
+        "عشره":"10","عشرة":"10","١٠":"10","ten":"10","تن":"10"
+      };
+      // أسماء/نطق الحروف الشائع
+      const letterMap = {
+        "الف":"ا","ألف":"ا","الفا":"ا",
+        "باء":"ب","بي":"ب","بيه":"ب",
+        "تاء":"ت","تي":"ت","تيه":"ت",
+        "جيم":"ج","جي":"ج",
+        "دال":"د","دي":"د",
+        "هاء":"ه","هيه":"ه",
+        "واو":"و",
+        "ياء":"ي","ياي":"ي","يي":"ي",
+        "اي":"a","إي":"a","ايه":"a",
+        "سي":"c","سيه":"c","دي":"d","ديه":"d",
+        "كي":"k","كيه":"k",
+        "اكس":"x","إكس":"x",
+        "زد":"z","زي":"z"
+      };
 
-      // تحويل الأرقام العربية
-      text = text.replace(/[٠-٩]/g, d => latinDigits[arabicDigits.indexOf(d)]);
+      // استبدال كلمات الأعداد أولاً
+      Object.keys(numMap).forEach(k=>{
+        text = text.replace(new RegExp(`\\b${k}\\b`,"g"), numMap[k]);
+      });
 
-      // حذف غير الحروف/الأرقام والمسافات
-      text = text.replace(/[^\p{L}\p{N}]+/gu, "");
+      // استبدال أسماء الحروف
+      Object.keys(letterMap).forEach(k=>{
+        text = text.replace(new RegExp(`\\b${k}\\b`,"g"), letterMap[k]);
+      });
 
-      return text.toLowerCase();
+      // في النهاية: إزالة المسافات تماماً حتى نتخطى اختلافات بسيطة
+      return text.replace(/\s+/g,"");
     }
 
-    function smartMatchAll(userText) {
-      const userNorm = normalizeName(userText);
-      if (!userNorm) return [];
+    // فهرس أسماء المحطات بالتطبيع لمطابقة قوية
+    const stationIndex = stations.map(st => ({
+      norm: normalizeName(st.name),
+      ref: st
+    }));
 
-      // مطابقة مباشرة
-      let results = stations.filter(s => normalizeName(s.name).includes(userNorm));
-      if (results.length) return results;
+    // تطابق اسم واحد
+    function findStationByText(userText){
+      const norm = normalizeName(userText);
+      // تطابق تام للنص المُطبّع
+      let hit = stationIndex.find(x => x.norm === norm);
+      if (hit) return [hit.ref];
 
-      // fallback بسيط للأخطاء الإملائية الصغيرة
-      function editDistance(a, b) {
-        const dp = Array.from({length: a.length + 1}, () => Array(b.length + 1).fill(0));
-        for (let i=0;i<=a.length;i++) dp[i][0]=i;
-        for (let j=0;j<=b.length;j++) dp[0][j]=j;
-        for (let i=1;i<=a.length;i++){
-          for (let j=1;j<=b.length;j++){
-            const cost = a[i-1] === b[j-1] ? 0 : 1;
-            dp[i][j] = Math.min(
-              dp[i-1][j] + 1,
-              dp[i][j-1] + 1,
-              dp[i-1][j-1] + cost
-            );
-          }
-        }
-        return dp[a.length][b.length];
+      // تطابق يحتوي/جزئي
+      const partial = stationIndex
+        .filter(x => x.norm.includes(norm) || norm.includes(x.norm))
+        .map(x => x.ref);
+
+      // إزالة التكرار بالأسماء
+      const unique = [];
+      const seen = new Set();
+      for(const s of partial){
+        if(!seen.has(s.name)){ seen.add(s.name); unique.push(s); }
       }
-      const MAX_DIST = 2;
-      results = stations.filter(s => editDistance(normalizeName(s.name), userNorm) <= MAX_DIST);
-      return results;
+      return unique;
     }
 
-    // ================== أوامر صوتية جاهزة ==================
-    const voicePatterns = [
-      /اقرب محطة/i, /وديني/i, /فين اقرب محطة/i, /اقرب محطه فين/i, /اين اقرب محطة/i, /هاتلي اقرب محطة/i
+    // ======== أوامر صوتية/نصية ========
+    const voiceNearestPatterns = [
+      /اقرب محطة/i, /فين اقرب محطة/i, /اقرب محطه فين/i, /اين اقرب محطة/i, /هاتلي اقرب محطة/i, /وديني/i
     ];
 
-    function handleUserMessage(text) {
-      // أوامر عامة
-      if (voicePatterns.some(p => p.test(text))) {
-        appendAssistantMessage("المساعد", "حاضر.. بجمع أقرب المحطات من موقعك 🔍");
+    function handleUserMessage(raw){
+      const text = raw.trim();
+      if(!text) return;
+
+      appendAssistantMessage("أنت", text);
+
+      // أقرب محطة
+      if (voiceNearestPatterns.some(p=>p.test(text))) {
+        appendAssistantMessage("المساعد","ثواني... بجمع أقرب المحطات من موقعك 🔍");
         showNearestStations();
         return;
       }
 
-      if (text.includes("تكبير")) { map.setZoom(map.getZoom() + 1); appendAssistantMessage("المساعد","تم تكبير الخريطة."); return; }
-      if (text.includes("تصغير")) { map.setZoom(map.getZoom() - 1); appendAssistantMessage("المساعد","تم تصغير الخريطة."); return; }
+      // أوامر تكبير/تصغير
+      if (text.includes("تكبير")) { map.setZoom(map.getZoom()+1); appendAssistantMessage("المساعد","تم تكبير الخريطة."); return; }
+      if (text.includes("تصغير")) { map.setZoom(map.getZoom()-1); appendAssistantMessage("المساعد","تم تصغير الخريطة."); return; }
       if (text.includes("إظهار كل المحطات")) { map.setZoom(10); map.setCenter({lat:30.05,lng:31.3}); appendAssistantMessage("المساعد","تم إظهار كل المحطات."); return; }
 
-      // بحث بالأسماء بعد التطبيع الذكي
-      const matches = smartMatchAll(text);
-      if (matches.length === 1) {
-        showStationInfo(matches[0]);
-        const link = `https://www.google.com/maps/search/?api=1&query=${matches[0].lat},${matches[0].lon}`;
-        appendAssistantMessage("المساعد", `تم تحديد ${matches[0].name} على الخريطة. <a href="${link}" target="_blank">ادخل إلى موقع المحطة</a>`);
-      } else if (matches.length > 1) {
-        const namesWithLinks = matches.map(m => {
+      // بحث بالاسم (مع التطبيع الذكي)
+      const matches = findStationByText(text);
+
+      if (matches.length === 1){
+        const st = matches[0];
+        showStationInfo(st);
+        const link = `https://www.google.com/maps/search/?api=1&query=${st.lat},${st.lon}`;
+        appendAssistantMessage("المساعد", `تم تحديد <a target="_blank" class="clickable-station" href="${link}">${st.name}</a> على الخريطة.`);
+      } else if (matches.length > 1){
+        const msg = matches.map(m=>{
           const link = `https://www.google.com/maps/search/?api=1&query=${m.lat},${m.lon}`;
-          return `${m.name}: <a href="${link}" target="_blank">ادخل إلى موقع المحطة</a>`;
+          return `${m.name}: <a target="_blank" href="${link}">افتح</a>`;
         }).join("<br>");
-        appendAssistantMessage("المساعد", `وجدت المحطات التالية:<br>${namesWithLinks}<br>من فضلك اكتب اسم المحطة المطلوبة.`);
+        appendAssistantMessage("المساعد", `وجدت أكثر من محطة متقاربة:<br>${msg}<br>اكتب الاسم بدقة أكبر لتحديد محطة واحدة.`);
       } else {
-        appendAssistantMessage("المساعد", "لم أتعرف على المحطة، حاول كتابة/نطق الاسم بشكل أقرب.");
+        appendAssistantMessage("المساعد", "لم أتعرف على المحطة، جرّب كتابة/نطق الاسم بشكل أقرب أو استخدم زر أقرب المحطات.");
       }
     }
 
-    // ================== إرسال نصي ==================
-    document.getElementById("sendBtn").addEventListener("click", () => {
-      const input = document.getElementById("userInput");
-      const text = input.value.trim();
-      if (!text) return;
-      appendAssistantMessage("أنت", text);
-      input.value = "";
-      handleUserMessage(text);
+    // ======== زر الإرسال ========
+    document.addEventListener("DOMContentLoaded", ()=>{
+      document.getElementById("sendBtn").addEventListener("click", ()=>{
+        const inp = document.getElementById("userInput");
+        handleUserMessage(inp.value);
+        inp.value = "";
+      });
+      document.getElementById("userInput").addEventListener("keydown",(e)=>{
+        if(e.key==="Enter"){ document.getElementById("sendBtn").click(); }
+      });
     });
 
-    // إرسال بالإنتر
-    document.getElementById("userInput").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") document.getElementById("sendBtn").click();
-    });
+    // ======== البحث الصوتي (Web Speech API) ========
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    if (SpeechRecognition){
+      recognition = new SpeechRecognition();
+      recognition.lang = "ar-EG"; // عربي مصر
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
 
-    // ================== بحث صوتي ==================
-    (function setupVoiceSearch(){
-      const micBtn = document.getElementById("micBtn");
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        micBtn.disabled = true;
-        micBtn.title = "المتصفح لا يدعم البحث الصوتي";
+      recognition.addEventListener("result", (e)=>{
+        const transcript = Array.from(e.results).map(r=>r[0].transcript).join(" ").trim();
+        document.getElementById("userInput").value = transcript;
+        handleUserMessage(transcript);
+      });
+      recognition.addEventListener("end", ()=>{
+        micBtn.classList.remove("listening");
+      });
+    }
+
+    const micBtn = document.getElementById("micBtn");
+    micBtn.addEventListener("click", ()=>{
+      if(!recognition){
+        appendAssistantMessage("المساعد","متصفحك لا يدعم البحث الصوتي. جرّب Chrome/Android.");
         return;
       }
-
-      const recog = new SpeechRecognition();
-      recog.lang = "ar-EG";
-      recog.interimResults = false;
-      recog.maxAlternatives = 1;
-
-      let listening = false;
-
-      function start() {
-        if (listening) return;
-        listening = true;
+      // ابدأ/أعد البدء
+      try{
         micBtn.classList.add("listening");
-        micBtn.title = "جارٍ الاستماع... اضغط للإيقاف";
-        try { recog.start(); } catch (_) {}
+        recognition.start();
+        appendAssistantMessage("المساعد","اسمعك الآن... تفضل بالنطق 🎤");
+      }catch(_){
+        // في بعض المتصفحات start يرمي خطأ لو قيد التشغيل
+        try{ recognition.stop(); }catch(__){}
+        setTimeout(()=>{ recognition.start(); },150);
+        micBtn.classList.add("listening");
       }
+    });
 
-      function stop() {
-        listening = false;
-        micBtn.classList.remove("listening");
-        micBtn.title = "بحث صوتي";
-        try { recog.stop(); } catch (_) {}
-      }
-
-      micBtn.addEventListener("click", () => {
-        if (!listening) start(); else stop();
-      });
-
-      recog.onresult = (e) => {
-        stop();
-        const transcript = (e.results[0] && e.results[0][0] && e.results[0][0].transcript) ? e.results[0][0].transcript : "";
-        if (transcript) {
-          appendAssistantMessage("أنت (صوت)", transcript);
-          // مرره للمطابقة الذكية
-          handleUserMessage(transcript);
-        } else {
-          appendAssistantMessage("المساعد", "لم أسمع شيئًا واضحًا. حاول مرة أخرى.");
-        }
-      };
-
-      recog.onerror = (e) => {
-        stop();
-        appendAssistantMessage("المساعد", "تعذر استخدام الميكروفون أو حدث خطأ في التعرف الصوتي.");
-      };
-
-      recog.onend = () => { stop(); };
-    })();
-
-    // اجعل initMap متاحة لسكربت خرائط جوجل
-    window.initMap = initMap;
+    // زر عام في الصفحة لعرض الأقرب (اختياري)
+    window.showNearestStations = showNearestStations;
   </script>
 
-  <!-- Google Maps (استبدل المفتاح بمفتاحك إن لزم) -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
+  <!-- خرائط جوجل: استبدل بمفتاحك -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_KEY&callback=initMap" async defer></script>
 
-  <div style="text-align: center; margin: 15px;">
-    <button onclick="showNearestStations()" style="padding: 10px 20px; font-size: 16px; background-color: #007BFF; color: white; border: none; border-radius: 6px; cursor: pointer;">
+  <div style="text-align:center;margin:15px;">
+    <button onclick="showNearestStations()" style="padding:10px 20px;font-size:16px;background-color:#007BFF;color:#fff;border:none;border-radius:6px;cursor:pointer;">
       عرض أقرب المحطات
     </button>
   </div>
+
 </body>
 </html>
