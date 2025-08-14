@@ -126,7 +126,6 @@
     // ================== البيانات ==================
     const stations = [
       // TODO: الصق جميع محطاتك هنا (نفس المصفوفة الكبيرة التي أرسلتها)
-      // أمثلة قصيرة فقط:
       { name: 'رئاسة الشركة', lat: 30.075775, lon: 31.31986388888889 },
       { name: 'خلف أكاديمية الشرطة', lat: 30.0494630429643, lon: 31.44170636619374 },
       { name: 'الرحاب', lat: 30.04365008035782, lon: 31.49653604012123 }
@@ -247,19 +246,24 @@
       });
     }
 
-    // ================== تطبيع عربي ذكي ==================
+    // ================== تطبيع عربي ذكي (مُعزّز) ==================
     function normalizeName(text) {
       if (!text) return "";
-      // تحويل الأرقام العربية للاتينية
-      const arabicDigits = "٠١٢٣٤٥٦٧٨٩";
-      const latinDigits  = "0123456789";
+
+      // Lower
+      text = text.toLowerCase();
 
       // إزالة التشكيل والتطويل
       text = text
-        .replace(/[\u0617-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
+        .replace(/[\u0617-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g, "") // تشكيل
         .replace(/\u0640/g, ""); // ـ
 
-      // توحيد أشكال الحروف والهمزات
+      // أرقام عربية -> لاتينية
+      const arNums = "٠١٢٣٤٥٦٧٨٩";
+      const ltNums = "0123456789";
+      text = text.replace(/[٠-٩]/g, d => ltNums[arNums.indexOf(d)]);
+
+      // توحيد الحروف والهمزات
       text = text
         .replace(/[آأإٱ]/g, "ا")
         .replace(/ة/g, "ه")
@@ -272,33 +276,69 @@
         .replace(/ژ/g, "ز")
         .replace(/ڤ/g, "ف");
 
-      // إزالة "ال" التعريف أينما ظهرت لتسهيل المطابقة
-      text = text.replace(/(^|\s)ال/g, "$1");
+      // إزالة "ال/أل/الـ" مهما كان شكلها
+      text = text.replace(/(^|\s)أ?لـ?/g, "$1");
 
-      // إزالة كلمات عامة
+      // إزالة كلمات عامة لا تؤثر
       text = text
-        .replace(/\b(محطه|محطة|محطات)\b/gi, "")
-        .replace(/\b(شركة|الشركه|ألشركة|الشركة)\b/gi, "")
-        .replace(/\b(وطنية|الوطنيه|الوطنية)\b/gi, "");
+        .replace(/\b(محط[هه]|محطات)\b/g, "")
+        .replace(/\b(شركة|الشركه|الشركة|ألشركة)\b/g, "")
+        .replace(/\b(وطنية|الوطنيه|الوطنية)\b/g, "");
 
-      // تحويل الأرقام العربية
-      text = text.replace(/[٠-٩]/g, d => latinDigits[arabicDigits.indexOf(d)]);
+      // تحويل كلمات الأرقام (عربي/عامي/إنجليزي) → أرقام
+      const numMap = {
+        "واحد":"1","ون":"1","one":"1",
+        "اتنين":"2","اثنين":"2","two":"2","تو":"2","تين":"2",
+        "تلاته":"3","ثلاثه":"3","ثلاثة":"3","three":"3","ثري":"3","تلات":"3",
+        "اربعه":"4","أربعه":"4","أربعة":"4","four":"4","فور":"4",
+        "خمسه":"5","خمسة":"5","five":"5","فايف":"5",
+        "سته":"6","ستة":"6","six":"6","سكس":"6",
+        "سبعه":"7","سبعة":"7","seven":"7","سفن":"7",
+        "تمانيه":"8","ثمانيه":"8","ثمانية":"8","eight":"8","ايت":"8",
+        "تسعه":"9","تسعة":"9","nine":"9","ناين":"9",
+        "عشره":"10","عشرة":"10","ten":"10","تن":"10"
+      };
+      Object.keys(numMap).forEach(k=>{
+        text = text.replace(new RegExp(`\\b${k}\\b`, "g"), numMap[k]);
+      });
 
-      // حذف غير الحروف/الأرقام والمسافات
+      // أسماء الحروف المنطوقة الشائعة → حرف/لاتيني
+      const letterMap = {
+        "الف":"ا","ألف":"ا","الفا":"ا",
+        "باء":"ب","بي":"ب","بيه":"ب",
+        "تاء":"ت","تي":"ت","تيه":"ت",
+        "جيم":"ج","جي":"ج",
+        "دال":"د","دي":"د",
+        "سين":"س","سي":"c","سيه":"c",
+        "هاء":"ه","هيه":"ه",
+        "واو":"و",
+        "ياء":"ي","ياي":"ي","يي":"ي",
+        "اكس":"x","إكس":"x",
+        "زد":"z","زي":"z",
+        // إنجليزية منطوقة
+        "اي":"a","إي":"a","ايه":"a",
+        "بي":"b","سي":"c","دي":"d","إف":"f","جي":"g","اتش":"h","اتشh":"h",
+        "كي":"k","كيه":"k","ال":"l","ام":"m","ان":"n","او":"o","بي":"p","كيو":"q","ار":"r","اس":"s","تي":"t","في":"v","دبليو":"w","واي":"y"
+      };
+      Object.keys(letterMap).forEach(k=>{
+        text = text.replace(new RegExp(`\\b${k}\\b`, "g"), letterMap[k]);
+      });
+
+      // إزالة كل ما ليس حرف/رقم
       text = text.replace(/[^\p{L}\p{N}]+/gu, "");
 
-      return text.toLowerCase();
+      return text;
     }
 
     function smartMatchAll(userText) {
       const userNorm = normalizeName(userText);
       if (!userNorm) return [];
 
-      // مطابقة مباشرة
-      let results = stations.filter(s => normalizeName(s.name).includes(userNorm));
+      // تطابق مباشر/جزئي
+      let results = stations.filter(s => normalizeName(s.name).includes(userNorm) || userNorm.includes(normalizeName(s.name)));
       if (results.length) return results;
 
-      // fallback بسيط للأخطاء الإملائية الصغيرة
+      // fallback: مسافة تحرير صغيرة
       function editDistance(a, b) {
         const dp = Array.from({length: a.length + 1}, () => Array(b.length + 1).fill(0));
         for (let i=0;i<=a.length;i++) dp[i][0]=i;
@@ -410,14 +450,13 @@
         const transcript = (e.results[0] && e.results[0][0] && e.results[0][0].transcript) ? e.results[0][0].transcript : "";
         if (transcript) {
           appendAssistantMessage("أنت (صوت)", transcript);
-          // مرره للمطابقة الذكية
           handleUserMessage(transcript);
         } else {
           appendAssistantMessage("المساعد", "لم أسمع شيئًا واضحًا. حاول مرة أخرى.");
         }
       };
 
-      recog.onerror = (e) => {
+      recog.onerror = () => {
         stop();
         appendAssistantMessage("المساعد", "تعذر استخدام الميكروفون أو حدث خطأ في التعرف الصوتي.");
       };
@@ -429,7 +468,7 @@
     window.initMap = initMap;
   </script>
 
-  <!-- Google Maps (استبدل المفتاح بمفتاحك إن لزم) -->
+  <!-- Google Maps (استبدل المفتاح بمفتاحك) -->
   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
 
   <div style="text-align: center; margin: 15px;">
