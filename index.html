@@ -640,7 +640,7 @@ const voicePatterns = [
    - تحويل الأرقام المنطوقة (واحد..عشرة / one..ten) → 1..10
    - دعم نُطق الحروف الشائع (ألف/بي/سي..)
    - حذف الرموز والمسافات */
-// تحديث دالة normalizeName
+// تحسين دالة normalizeName
 function normalizeName(text) {
   if (!text) return "";
   let t = text.toLowerCase();
@@ -720,7 +720,7 @@ function normalizeName(text) {
   return t;
 }
 
-// تحديث smartMatchAll لتشمل البحث باستخدام Fuel Up و فيول أب
+// تحديث smartMatchAll لتشمل البحث باستخدام "Fuel Up" أو "فيول أب"
 function smartMatchAll(userText) {
   const userNorm = normalizeName(userText);
   if (!userNorm) return [];
@@ -739,7 +739,7 @@ function smartMatchAll(userText) {
   return results;
 }
 
-// التعامل مع رسائل المستخدم
+// التعامل مع الرسائل
 function handleUserMessage(text) {
   // أوامر عامة
   const matched = voicePatterns.some(pat => pat.test(text));
