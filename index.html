@@ -491,7 +491,6 @@ const stations = [
       { name: 'اسيوط/الفرافرة1', lat: 27.58197222222222, lon: 30.65738611111111 },
       { name: 'مرسى علم', lat: 25.18673671369732, lon: 34.82413984125736 },
   { name: 'شلاتين', lat: 23.11694444444445, lon: 35.53583333333333 }
-  // Continue listing all stations...
 ];
 
 let map;
@@ -755,6 +754,7 @@ function smartMatchAll(userText) {
   results = stations.filter(s => editDistance(normalizeName(s.name), userNorm) <= MAX_DIST);
   return results;
 }
+/* ===================== نهاية الإضافات الجديدة ===================== */
 
 function handleUserMessage(text) {
   // أوامر عامة (كما هي)
