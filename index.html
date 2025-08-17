@@ -640,6 +640,7 @@ const voicePatterns = [
    - تحويل الأرقام المنطوقة (واحد..عشرة / one..ten) → 1..10
    - دعم نُطق الحروف الشائع (ألف/بي/سي..)
    - حذف الرموز والمسافات */
+// تحديث دالة normalizeName
 function normalizeName(text) {
   if (!text) return "";
   let t = text.toLowerCase();
@@ -719,45 +720,28 @@ function normalizeName(text) {
   return t;
 }
 
-// مسافة تحرير بسيطة (Levenshtein)
-function editDistance(a, b) {
-  const dp = Array.from({length: a.length + 1}, () => Array(b.length + 1).fill(0));
-  for (let i=0;i<=a.length;i++) dp[i][0]=i;
-  for (let j=0;j<=b.length;j++) dp[0][j]=j;
-  for (let i=1;i<=a.length;i++){
-    for (let j=1;j<=b.length;j++){
-      const cost = a[i-1] === b[j-1] ? 0 : 1;
-      dp[i][j] = Math.min(
-        dp[i-1][j] + 1,
-        dp[i][j-1] + 1,
-        dp[i-1][j-1] + cost
-      );
-    }
-  }
-  return dp[a.length][b.length];
-}
-
-// مطابقة ذكية تعيد قائمة نتائج محتملة
+// تحديث smartMatchAll لتشمل البحث باستخدام Fuel Up و فيول أب
 function smartMatchAll(userText) {
   const userNorm = normalizeName(userText);
   if (!userNorm) return [];
 
-  // تطابق مباشر/جزئي
   let results = stations.filter(s => {
     const n = normalizeName(s.name);
     return n.includes(userNorm) || userNorm.includes(n);
   });
-  if (results.length) return results;
 
-  // مطابقة ضبابية لمسافة تحرير ≤ 2
-  const MAX_DIST = 2;
-  results = stations.filter(s => editDistance(normalizeName(s.name), userNorm) <= MAX_DIST);
+  // إذا لم يتم العثور على تطابق، سنبحث باستخدام "Fuel Up" أو "فيول أب"
+  const fuelUpStations = ['محور التعمير 1', 'محور التعمير 2', 'خلف أكاديمية'];
+  if (userNorm.includes("فيول اب") || userNorm.includes("Fuel Up") || userNorm.includes("فويل أب")) {
+    results = stations.filter(st => fuelUpStations.includes(st.name));
+  }
+
   return results;
 }
-/* ===================== نهاية الإضافات الجديدة ===================== */
 
+// التعامل مع رسائل المستخدم
 function handleUserMessage(text) {
-  // أوامر عامة (كما هي)
+  // أوامر عامة
   const matched = voicePatterns.some(pat => pat.test(text));
   if (matched) {
     appendAssistantMessage("المساعد", "ثواني... بجمع أقرب المحطات من موقعك 🔍");
@@ -765,7 +749,7 @@ function handleUserMessage(text) {
     return;
   }
 
-  // === بحث محسّن بالأسماء باستخدام التطبيع والمطابقة الذكية ===
+  // البحث المحسن باستخدام التطبيع والمطابقة الذكية
   const matches = smartMatchAll(text);
 
   if (matches.length === 1) {
@@ -783,10 +767,9 @@ function handleUserMessage(text) {
     }).join("<br>");
     appendAssistantMessage("المساعد", `وجدت أكثر من نتيجة:<br>${msg}<br>من فضلك حدّد الاسم المطلوب.`);
   } else {
-    appendAssistantMessage("المساعد", "لم أتعرف على المحطة، حاول كتابة/نطق الاسم بشكل أقرب (مثال: خلف أكاديمية/اكادمية/الأكادمية كلهم يتعرفوا).");
+    appendAssistantMessage("المساعد", "لم أتعرف على المحطة، حاول كتابة/نطق الاسم بشكل أقرب.");
   }
 }
-
 function toggleSidebar() {
   const sidebar = document.getElementById('sidebar');
   const btn = document.getElementById('sidebarToggleBtn');
